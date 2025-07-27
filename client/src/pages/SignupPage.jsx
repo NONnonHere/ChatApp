@@ -1,18 +1,20 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/LoginPage.jsx
+// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/SignupPage.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import assets from '../assets/assets'; // Import assets for logo
 
-function LoginPage() {
+function SignupPage() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [profilePic, setProfilePic] = useState(''); // For profile picture URL
 
-  // No actual login logic, just UI
+  // No actual signup logic, just UI
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // In a real app, you'd handle authentication here
-    alert('Login functionality is not implemented in this UI-only version.');
+    console.log('Signup attempt:', { fullName, email, password, profilePic });
+    // In a real app, you'd handle user registration and data storage here
+    alert('Signup functionality is not implemented in this UI-only version.');
   };
 
   return (
@@ -21,9 +23,17 @@ function LoginPage() {
         <div className="flex justify-center mb-6">
           <img src={assets.logo} alt="QuickChat Logo" className="w-24 h-auto" />
         </div>
-        <h2 className="text-white text-3xl font-bold text-center mb-6">Login</h2>
+        <h2 className="text-white text-3xl font-bold text-center mb-6">Sign Up</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
           <input
             type="email"
             placeholder="Email"
@@ -40,17 +50,24 @@ function LoginPage() {
             className="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
+          <input
+            type="text"
+            placeholder="Profile Picture URL (Optional)"
+            value={profilePic}
+            onChange={(e) => setProfilePic(e.target.value)}
+            className="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
           <button
             type="submit"
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors duration-200"
           >
-            Login
+            Sign Up
           </button>
         </form>
         <p className="text-center text-gray-300 mt-6">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-indigo-400 hover:underline">
-            Sign Up
+          Already have an account?{' '}
+          <Link to="/login" className="text-indigo-400 hover:underline">
+            Login
           </Link>
         </p>
       </div>
@@ -58,4 +75,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignupPage;

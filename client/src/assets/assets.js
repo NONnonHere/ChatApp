@@ -38,6 +38,8 @@ const assets = {
     profile_martin
 }
 
+
+
 export default assets;
 
 export const imagesDummyData = [pic1, pic2, pic3, pic4, pic1, pic2]
