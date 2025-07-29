@@ -1,18 +1,22 @@
 // nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/LoginPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import assets from '../assets/assets'; // Import assets for logo
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext for login functionality
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // No actual login logic, just UI
+
+  const {login} = useContext(AuthContext);
+
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // In a real app, you'd handle authentication here
-    alert('Login functionality is not implemented in this UI-only version.');
+    
+    login(currState==='login', {email, password} )
+    
   };
 
   return (

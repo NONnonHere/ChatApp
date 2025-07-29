@@ -5,12 +5,12 @@ import http from "http";
 import { connectDB } from "./lib/db.js";
 import userRouter from "./routes/userRoutes.js";
 import messagesRouter from "./routes/messagesRoutes.js";
-import {server} from "socket.io";
+import {Server} from "socket.io";
 
 const app = express();
 const server = http.createServer(app);
 
-export const io = new server(server, {
+export const io = new Server(server, {
   cors:{origin: "*"}
 });
 

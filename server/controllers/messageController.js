@@ -12,7 +12,7 @@ export const getUsersForSidebar = async (req, res) => {
         const unSeenMessages = {}
 
         const promises = filteredUsers.map(async (user) => {
-            const messages = await Message.findOne({senderId: user._id, receiverId: userId, seen:false})
+            const messages = await Message.find({senderId: user._id, receiverId: userId, seen:false})
             if(messages.length > 0){
                 unSeenMessages[user._id] = messages.length;
             }
@@ -54,7 +54,8 @@ export const getMessage = async (req, res) => {
             messages
         });
     } catch (error) {
-        
+        console.error("Error getting messages:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 
 }
