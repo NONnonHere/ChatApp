@@ -1,21 +1,22 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/SignupPage.jsx
+// client/src/pages/SignupPage.jsx
+
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import assets from '../assets/assets'; // Import assets for logo
-import { AuthContext } from '../context/AuthContext'; // Import AuthContext for login functionality
+import assets from '../assets/assets';
+import { AuthContext } from '../context/AuthContext'; 
 
 function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [profilePic, setProfilePic] = useState(''); // For profile picture URL
 
-  const {signup} = useContext(AuthContext);
+  
+  const { signup } = useContext(AuthContext); 
 
-  // No actual signup logic, just UI
   const handleSubmit = (e) => {
     e.preventDefault();
-    signup({ fullName, email, password, profilePic });
+   
+    signup({ fullName, email, password });
   };
 
   return (
@@ -26,7 +27,7 @@ function SignupPage() {
         </div>
         <h2 className="text-white text-3xl font-bold text-center mb-6">Sign Up</h2>
 
-        <form onSubmit={handleSubmit} action="/api/auth/signup" method="post" className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"
             placeholder="Full Name"
@@ -51,13 +52,7 @@ function SignupPage() {
             className="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
-          <input
-            type="text"
-            placeholder="Profile Picture URL (Optional)"
-            value={profilePic}
-            onChange={(e) => setProfilePic(e.target.value)}
-            className="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          {/* The profile picture URL input is removed as the signup controller doesn't use it. */}
           <button
             type="submit"
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors duration-200"

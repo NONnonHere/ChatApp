@@ -77,8 +77,6 @@ export const markMessageAsSeen = async (req, res) => {
 
 
 export const sendMessage = async (req, res) => {
-    console.log("Message received:", req.body);
-
     try {
         const { text, image } = req.body;
         const receiverId = req.params.id;
@@ -89,6 +87,7 @@ export const sendMessage = async (req, res) => {
             const uploadResponse = await cloudinary.uploader.upload(image);
             imageUrl = uploadResponse.secure_url;
         }
+        
         const newMessage = new Message({
             senderId,
             receiverId,
@@ -96,9 +95,13 @@ export const sendMessage = async (req, res) => {
             image: imageUrl
         });
 
-        const recieverSocketId = userSockMap[receiverId];
-        if (recieverSocketId) {
-            io.to(recieverSocketId).emit("getMessage", newMessage);
+
+        await newMessage.save();
+
+        const receiverSocketId = userSockMap[receiverId];
+        if (receiverSocketId) {
+            
+            io.to(receiverSocketId).emit("getMessage", newMessage);
         }
 
         res.json({
@@ -110,4 +113,4 @@ export const sendMessage = async (req, res) => {
         console.error("Error sending message:", error);
         res.status(500).json({ message: "Internal server error" });
     }
-}
+};

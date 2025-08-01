@@ -2,7 +2,7 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import cloudinary from "../lib/cloudinary.js";
+import cloudinary from "../lib/cloudinary.js";  
 
 export const signup = async (req, res) => {
     const { fullName, email, password, bio } = req.body;
@@ -87,33 +87,39 @@ export const checkAuth = async (req, res) => {
 }
 
 export const updateProfile = async (req, res) => {
-    // FIX: Destructure profilePic from req.body
-    const { fullName, email, bio, profilePic } = req.body;
-    const userId = req.user._id;
-
     try {
-        // Check if user exists
-        const user = await User.findById(userId);
+        const { fullName, bio } = req.body;
+        const userId = req.user._id;
+
+        let user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        let updatedUser;
+      
+        if (req.file) {
+            
+            const b64 = Buffer.from(req.file.buffer).toString("base64");
+            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            
+            
+            const uploadResponse = await cloudinary.uploader.upload(dataURI);
+            user.profilePic = uploadResponse.secure_url;
+        }
 
-        if(!profilePic){
-            updatedUser = await User.findByIdAndUpdate(userId, {bio, fullName, email}, { new: true });
-        } else {
-            const upload = await cloudinary.uploader.upload(profilePic);
+        user.fullName = fullName || user.fullName;
+        user.bio = bio || user.bio;
 
-            updatedUser = await User.findByIdAndUpdate(userId, {profilePic: upload.secure_url, bio, fullName, email}, { new: true });
-        }   
+        await user.save();
+
         res.json({
             status: "success",
             message: "Profile updated successfully",
-            userData: updatedUser
+            userData: user
         });
+
     } catch (error) {
         console.error("Error updating profile:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
-}
+};

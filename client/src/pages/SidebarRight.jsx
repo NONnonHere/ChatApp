@@ -1,9 +1,11 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/components/SidebarRight.jsx
-import React from 'react'
-import { imagesDummyData } from '../assets/assets' // Import dummy image data
+// client/src/pages/SidebarRight.jsx
+
+import React, { useContext } from 'react'; // Import useContext
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext
+import assets from '../assets/assets'; // Import assets for default avatar
 
 const SidebarRight = ({ selectedChatUser, messages }) => {
-  // Filter messages to get only those with images for the media section
+  const { logout } = useContext(AuthContext); // Get the logout function from context
   const mediaMessages = messages.filter(msg => msg.image);
 
   if (!selectedChatUser) {
@@ -11,7 +13,7 @@ const SidebarRight = ({ selectedChatUser, messages }) => {
       <div className="w-1/5 bg-gray-800 bg-opacity-70 p-6 rounded-r-2xl flex flex-col backdrop-blur-md shadow-lg items-center justify-center">
         <p className="text-white text-center">Select a chat to see details</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -20,7 +22,7 @@ const SidebarRight = ({ selectedChatUser, messages }) => {
       <div className="flex flex-col items-center text-center mb-8">
         <div className="relative mb-4">
           <img
-            src={selectedChatUser.profilePic}
+            src={selectedChatUser.profilePic || assets.avatar_icon}
             alt={selectedChatUser.fullName}
             className="w-24 h-24 rounded-full object-cover border-4 border-indigo-500"
           />
@@ -53,26 +55,28 @@ const SidebarRight = ({ selectedChatUser, messages }) => {
       </div>
 
       {/* Logout Button */}
-      <button className="mt-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-200">
+      <button 
+        onClick={logout} // Add the onClick handler here
+        className="mt-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-200"
+      >
         Logout
       </button>
-      {/* Add custom-scrollbar styles to index.css if not already there */}
+
+      {/* Scrollbar styles */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
-
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
-
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(156, 163, 175, 0.4); /* gray-400 with opacity */
+          background-color: rgba(156, 163, 175, 0.4);
           border-radius: 10px;
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default SidebarRight
+export default SidebarRight;

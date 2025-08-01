@@ -1,9 +1,15 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/components/SidebarLeft.jsx
-import React from 'react'
-import UserListItem from './UserListItem' // Import the new component
-import assets, { userDummyData } from '../assets/assets' // Import assets and dummy data
+// client/src/pages/SidebarLeft.jsx
+
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import UserListItem from './UserListItem';
+import assets from '../assets/assets'; 
+import { AuthContext } from '../context/AuthContext';
+
 
 const SidebarLeft = ({ users, selectedChatUser, onSelectChat }) => {
+  const { authUser } = useContext(AuthContext);
+
   return (
     <div className="w-1/4 bg-gray-800 bg-opacity-70 p-6 rounded-l-2xl flex flex-col backdrop-blur-md shadow-lg">
       <div className="flex items-center gap-3 mb-8">
@@ -24,7 +30,8 @@ const SidebarLeft = ({ users, selectedChatUser, onSelectChat }) => {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2"> {/* Added custom-scrollbar */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+        {/* This will now map over the real users passed via props */}
         {users.map((user) => (
           <UserListItem
             key={user._id}
@@ -35,23 +42,38 @@ const SidebarLeft = ({ users, selectedChatUser, onSelectChat }) => {
         ))}
       </div>
 
-      {/* Add custom-scrollbar styles to index.css if not already there */}
+      {/* Profile Button Section */}
+      {authUser && (
+        <div className="mt-auto pt-4 border-t border-gray-700">
+          <Link to="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+            <img
+              src={authUser.profilePic || assets.avatar_icon}
+              alt={authUser.fullName}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div className="flex-1">
+              <h3 className="text-white text-lg font-semibold">{authUser.fullName}</h3>
+              <p className="text-sm text-gray-400">View Profile</p>
+            </div>
+          </Link>
+        </div>
+      )}
+      
+      {/* Scrollbar styles */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
-
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
-
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(156, 163, 175, 0.4); /* gray-400 with opacity */
+          background-color: rgba(156, 163, 175, 0.4);
           border-radius: 10px;
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default SidebarLeft
+export default SidebarLeft;

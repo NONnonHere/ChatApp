@@ -1,4 +1,7 @@
-import React from 'react'
+// client/src/pages/UserListItem.jsx
+
+import React from 'react';
+import assets from '../assets/assets'; // Import assets to get the default avatar
 
 const UserListItem = ({ user, isSelected, onClick }) => {
   return (
@@ -9,7 +12,8 @@ const UserListItem = ({ user, isSelected, onClick }) => {
       onClick={() => onClick(user)}
     >
       <img
-        src={user.profilePic}
+       
+        src={user.profilePic || assets.avatar_icon}
         alt={user.fullName}
         className="w-12 h-12 rounded-full object-cover"
       />
@@ -20,7 +24,7 @@ const UserListItem = ({ user, isSelected, onClick }) => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserListItem
+export default UserListItem;

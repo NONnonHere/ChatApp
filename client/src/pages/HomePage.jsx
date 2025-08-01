@@ -1,65 +1,97 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/HomePage.jsx
-import React, { useState, useEffect } from 'react'
-import SidebarLeft from './SidebarLeft.jsx'
-import ChatWindow from './ChatWindow'
-import SidebarRight from './SidebarRight'
-import assets, { userDummyData, messagesDummyData } from '../assets/assets'
+// client/src/pages/HomePage.jsx
+
+import React, { useState, useEffect, useContext } from 'react';
+import SidebarLeft from './SidebarLeft.jsx';
+import ChatWindow from './ChatWindow';
+import SidebarRight from './SidebarRight';
+import { AuthContext } from '../context/AuthContext';
 
 function HomePage() {
-  const [selectedChatUser, setSelectedChatUser] = useState(null)
-  const [currentMessages, setCurrentMessages] = useState([])
+  const [selectedChatUser, setSelectedChatUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const { authUser, axios, onlineUsers, socket } = useContext(AuthContext); // Get the socket instance
 
-  // Simulate current user (e.g., the logged-in user)
-  const currentUser = userDummyData[1]; // Martin Johnson as current user for demo purposes
-
+  // Fetch users for the sidebar
   useEffect(() => {
-    // When a chat user is selected, filter messages related to that user
-    if (selectedChatUser) {
-      const filteredMessages = messagesDummyData.filter(
-        (msg) =>
-          (msg.senderId === currentUser._id && msg.receiverId === selectedChatUser._id) ||
-          (msg.senderId === selectedChatUser._id && msg.receiverId === currentUser._id)
-      )
-      setCurrentMessages(filteredMessages);
-    } else {
-      setCurrentMessages([]);
+    const getUsers = async () => {
+      try {
+        const { data } = await axios.get("/api/messages/sidebar");
+        if (data.status === "success") {
+          setUsers(data.users);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    if (authUser) {
+      getUsers();
     }
-  }, [selectedChatUser, currentUser._id]);
+  }, [authUser, axios]);
+
+  // Fetch messages for the selected chat
+  useEffect(() => {
+    if (selectedChatUser) {
+        const getMessages = async () => {
+            try {
+                const {data} = await axios.get(`/api/messages/${selectedChatUser._id}`);
+                if (data.status === "success") {
+                    setMessages(data.messages);
+                }
+            } catch (error) {
+                console.error("Error fetching messages:", error);
+            }
+        }
+        getMessages();
+    } else {
+      setMessages([]);
+    }
+  }, [selectedChatUser, authUser, axios]);
+
+  // FIX: Add useEffect to listen for incoming messages
+  useEffect(() => {
+    if (socket) {
+      socket.on("getMessage", (newMessage) => {
+        // Check if the message belongs to the currently selected chat
+        if (selectedChatUser?._id === newMessage.senderId) {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        }
+      });
+
+      // Clean up the event listener when the component unmounts
+      return () => socket.off("getMessage");
+    }
+  }, [socket, selectedChatUser]);
+
 
   const handleSelectChat = (user) => {
-    setSelectedChatUser(user)
-  }
+    setSelectedChatUser(user);
+  };
 
-  // To simulate online/offline status, you can modify userDummyData
-  // For this example, let's make a few users online.
-  const usersWithStatus = userDummyData.map((user, index) => ({
+  const usersWithStatus = users.map((user) => ({
     ...user,
-    online: index % 2 === 0, // Alternate online/offline for demo
+    online: onlineUsers.includes(user._id),
   }));
 
   return (
     <div className='flex w-[90%] h-[90vh] rounded-3xl overflow-hidden shadow-2xl'>
-      {/* Left Sidebar */}
       <SidebarLeft
         users={usersWithStatus}
         selectedChatUser={selectedChatUser}
         onSelectChat={handleSelectChat}
       />
-
-      {/* Chat Window */}
       <ChatWindow
         selectedChatUser={selectedChatUser}
-        messages={currentMessages}
-        currentUser={currentUser}
+        messages={messages}
+        setMessages={setMessages}
+        currentUser={authUser}
       />
-
-      {/* Right Sidebar */}
       <SidebarRight
         selectedChatUser={selectedChatUser}
-        messages={currentMessages} // Pass messages to filter media
+        messages={messages}
       />
     </div>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;
