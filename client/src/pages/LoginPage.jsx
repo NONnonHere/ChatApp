@@ -1,23 +1,29 @@
 // nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/LoginPage.jsx
-import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import assets from '../assets/assets'; // Import assets for logo
-import { AuthContext } from '../../context/AuthContext'; // Import AuthContext for login functionality
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext for login functionality
+// Import Navigate for redirection
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { login, authUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const {login} = useContext(AuthContext);
 
-  
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    login(currState==='login', {email, password} )
-    
+    login({ email, password }, navigate);
   };
+
+    useEffect(() => {
+    if (authUser) {
+      navigate("/"); // Redirect to homepage if user is authenticated
+    }
+  }, [authUser, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 bg-cover bg-center" style={{ backgroundImage: `url(${assets.bgImage})` }}>

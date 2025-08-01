@@ -1,47 +1,78 @@
-// nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/ProfilePage.jsx
-import React, { useState } from 'react';
-import assets from '../assets/assets'; // Import assets for logo and avatar
+// client/src/pages/ProfilePage.jsx
+
+import React, { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext
+import assets from '../assets/assets'; // Import assets for fallback images
 
 export default function ProfilePage() {
-  // Dummy data for the profile, replace with actual user data in a real application
-  const [fullName, setFullName] = useState('Martin Johnson');
-  const [bio, setBio] = useState('Hi Everyone, I am Using QuickChat');
-  const [profileImage, setProfileImage] = useState(assets.profile_martin); // Use a dummy profile pic
+  const { authUser, updateProfile } = useContext(AuthContext); // Get user and function from context
 
-  const handleSubmit = (e) => {
+  // State for form fields, initialized with authUser data or empty strings
+  const [fullName, setFullName] = useState('');
+  const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState(null); // This will hold the File object or base64 string
+  const [profileImagePreview, setProfileImagePreview] = useState(''); // For displaying the image
+
+  // Populate form when authUser is available
+  useEffect(() => {
+    if (authUser) {
+      setFullName(authUser.fullName || '');
+      setBio(authUser.bio || '');
+      setProfileImagePreview(authUser.profilePic || assets.avatar_icon);
+    }
+  }, [authUser]);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Profile save attempt:', { fullName, bio, profileImage });
-    // In a real app, you'd send this data to your backend/database
-    alert('Profile save functionality is not implemented in this UI-only version.');
+    const profileData = {
+      fullName,
+      bio,
+      // Only include profilePic if a new image was selected
+      ...(profileImage && { profilePic: profileImage }),
+    };
+    await updateProfile(profileData);
   };
 
-  // Placeholder for image upload interaction (UI only)
-  const handleImageUploadClick = () => {
-    alert('Image upload functionality is not implemented in this UI-only version.');
+  // Handle image selection and create a preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create a base64 string for the backend and a preview URL for the frontend
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setProfileImage(reader.result); // Base64 for API
+        setProfileImagePreview(reader.result); // Base64 for preview
+      };
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 bg-cover bg-center" style={{ backgroundImage: `url(${assets.bgImage})` }}>
       <div className="bg-gray-800 bg-opacity-70 p-8 rounded-2xl shadow-lg w-full max-w-md backdrop-blur-md border border-gray-700">
-        <div className="flex justify-center mb-6">
-          {/* You can add your app logo here if desired, similar to login/signup */}
-          {/* <img src={assets.logo} alt="QuickChat Logo" className="w-24 h-auto" /> */}
-        </div>
         <h2 className="text-white text-3xl font-bold text-center mb-6">Profile Details</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Profile Image Section */}
           <div className="flex flex-col items-center gap-4 mb-4">
-            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-500 cursor-pointer" onClick={handleImageUploadClick}>
+            <label htmlFor="profile-upload" className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-500 cursor-pointer">
               <img
-                src={profileImage || assets.avatar_icon} // Fallback to a default avatar
+                src={profileImagePreview} // Use the preview state
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                <span className="text-white text-center text-sm">Upload Profile Image</span>
+                <span className="text-white text-center text-sm">Upload Image</span>
               </div>
-            </div>
+            </label>
+            <input
+              type="file"
+              id="profile-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </div>
 
           {/* Full Name Input */}
@@ -63,7 +94,7 @@ export default function ProfilePage() {
             <label htmlFor="bio" className="text-gray-300 text-sm">Bio</label>
             <textarea
               id="bio"
-              placeholder="Hi Everyone, I am Using QuickChat"
+              placeholder="Tell us about yourself"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows="3"
@@ -75,7 +106,7 @@ export default function ProfilePage() {
             type="submit"
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors duration-200 mt-4"
           >
-            Save
+            Save Changes
           </button>
         </form>
       </div>

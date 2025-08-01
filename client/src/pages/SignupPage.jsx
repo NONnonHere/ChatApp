@@ -1,7 +1,8 @@
 // nonnonhere/chatapp/ChatApp-235f30d4b58c5736899f57792fdde4d717e97489/client/src/pages/SignupPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import assets from '../assets/assets'; // Import assets for logo
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext for login functionality
 
 function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -9,12 +10,12 @@ function SignupPage() {
   const [password, setPassword] = useState('');
   const [profilePic, setProfilePic] = useState(''); // For profile picture URL
 
+  const {signup} = useContext(AuthContext);
+
   // No actual signup logic, just UI
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup attempt:', { fullName, email, password, profilePic });
-    // In a real app, you'd handle user registration and data storage here
-    alert('Signup functionality is not implemented in this UI-only version.');
+    signup({ fullName, email, password, profilePic });
   };
 
   return (
@@ -25,7 +26,7 @@ function SignupPage() {
         </div>
         <h2 className="text-white text-3xl font-bold text-center mb-6">Sign Up</h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} action="/api/auth/signup" method="post" className="flex flex-col gap-4">
           <input
             type="text"
             placeholder="Full Name"

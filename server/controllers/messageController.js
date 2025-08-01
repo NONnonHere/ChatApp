@@ -77,7 +77,7 @@ export const markMessageAsSeen = async (req, res) => {
 
 
 export const sendMessage = async (req, res) => {
-    
+    console.log("Message received:", req.body);
 
     try {
         const { text, image } = req.body;

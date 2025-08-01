@@ -28,6 +28,10 @@ export const signup = async (req, res) => {
             bio,
         }); 
 
+        console.log("Attempting to save new user...");
+        await newUser.save();
+        console.log("New user saved successfully!"); 
+
         const token = generateToken(newUser._id);
 
         res.json({
@@ -45,28 +49,31 @@ export const signup = async (req, res) => {
 
 
 export const login = async (req, res) => {
+    
     const { email, password } = req.body;
 
     try {
         // Check if user exists
         const user = await User.findOne({ email });
-        const isPasswordValid = user && (await bcrypt.compare(password, user.password));
+        if (!user) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
         const token = generateToken(user._id);
         res.json({
-            status: "success",  
+            status: "success",
             message: "Login successful",
             userData: user,
             token
         });
-        if (!user) {
-            return res.status(400).json({ message: "User does not exist" });
-        }
     } catch (error) {
         console.error("Error during login:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 } 
 
@@ -80,7 +87,8 @@ export const checkAuth = async (req, res) => {
 }
 
 export const updateProfile = async (req, res) => {
-    const { fullName, email, password, bio } = req.body;
+    // FIX: Destructure profilePic from req.body
+    const { fullName, email, bio, profilePic } = req.body;
     const userId = req.user._id;
 
     try {
